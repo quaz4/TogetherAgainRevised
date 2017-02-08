@@ -53,13 +53,19 @@ public class Settings extends AppCompatActivity {
 
     private void sendToWear(Bitmap bitmap)
     {
+        if(mGoogleApiClient==null)
+        {
+            showToast("Connection is null");
+            return;
+        }
+
         PutDataMapRequest request = PutDataMapRequest.create("/image");
         DataMap map = request.getDataMap();
         Asset asset = createAssetFromBitmap(bitmap);
-        Random randomGenerator = new Random();
-        int randomInt = randomGenerator.nextInt(1000);
-        map.putInt("Integer", randomInt);
-        map.putAsset("profileImage", asset);
+        //Random randomGenerator = new Random();
+        //int randomInt = randomGenerator.nextInt(1000);
+        //map.putInt("Integer", randomInt);
+        map.putAsset("background", asset);
         Wearable.DataApi.putDataItem(mGoogleApiClient, request.asPutDataRequest());
         showToast("Sending...");
     }
@@ -179,7 +185,7 @@ public class Settings extends AppCompatActivity {
     private void makeConnection() {
         if(mGoogleApiClient != null && mGoogleApiClient.isConnected())
         {
-
+            //Do nothing
         }
         else
         {
@@ -190,12 +196,14 @@ public class Settings extends AppCompatActivity {
                         @Override
                         public void onConnected(Bundle connectionHint)
                         {
+                            showToast("Connected");
                             Log.d(TAG, "onConnected: " + connectionHint);
                             watchCom = true;
                         }
                         @Override
                         public void onConnectionSuspended(int cause)
                         {
+                            showToast("Connection Suspended");
                             Log.d(TAG, "onConnectionSuspended: " + cause);
                         }
                     })
@@ -204,6 +212,7 @@ public class Settings extends AppCompatActivity {
                         @Override
                         public void onConnectionFailed(ConnectionResult result)
                         {
+                            showToast("Connection Failed");
                             Log.d(TAG, "onConnectionFailed: " + result);
                         }
                     })

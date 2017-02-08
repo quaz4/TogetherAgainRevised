@@ -3,6 +3,7 @@
     package="net.dust_bowl.togetheragain">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
     <intent-filter>
         <action android:name="android.intent.action.MAIN" />

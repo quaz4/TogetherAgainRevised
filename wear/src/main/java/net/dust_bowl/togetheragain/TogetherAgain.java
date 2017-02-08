@@ -28,6 +28,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -39,16 +40,20 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.data.FreezableUtils;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.wearable.WearableListenerService;
 
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -56,7 +61,8 @@ import java.util.concurrent.TimeUnit;
  * Digital watch face with seconds. In ambient mode, the seconds aren't displayed. On devices with
  * low-bit ambient mode, the text is drawn without anti-aliasing in ambient mode.
  */
-public class TogetherAgain extends CanvasWatchFaceService implements DataApi.DataListener{
+public class TogetherAgain extends CanvasWatchFaceService
+{
     private static final Typeface NORMAL_TYPEFACE =
             Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL);
 
@@ -73,6 +79,9 @@ public class TogetherAgain extends CanvasWatchFaceService implements DataApi.Dat
 
     Bitmap background = null;
 
+    GoogleApiClient mGoogleApiClient = null;
+
+    /*
     @Override
     public void onDataChanged(DataEventBuffer dataEvents)
     {
@@ -85,35 +94,7 @@ public class TogetherAgain extends CanvasWatchFaceService implements DataApi.Dat
                 background = loadBitmapFromAsset(profileAsset);
             }
         }
-    }
-
-    public Bitmap loadBitmapFromAsset(Asset asset)
-    {
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
-                .build();
-
-        mGoogleApiClient.connect();
-
-        if (asset == null) {
-            throw new IllegalArgumentException("Asset must be non-null");
-        }
-        ConnectionResult result =
-                mGoogleApiClient.blockingConnect(15000L, TimeUnit.MILLISECONDS);
-        if (!result.isSuccess()) {
-            return null;
-        }
-        // convert asset into a file descriptor and block until it's ready
-        InputStream assetInputStream = Wearable.DataApi.getFdForAsset(
-                mGoogleApiClient, asset).await().getInputStream();
-        mGoogleApiClient.disconnect();
-
-        if (assetInputStream == null) {
-            return null;
-        }
-        // decode the stream into a bitmap
-        return BitmapFactory.decodeStream(assetInputStream);
-    }
+    }*/
 
     @Override
     public Engine onCreateEngine() {
@@ -206,19 +187,27 @@ public class TogetherAgain extends CanvasWatchFaceService implements DataApi.Dat
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
 
-            if (visible) {
+            if (visible)
+            {
                 registerReceiver();
 
                 // Update time zone in case it changed while we weren't visible.
                 mCalendar.setTimeZone(TimeZone.getDefault());
                 invalidate();
-            } else {
+            }
+            else
+            {
                 unregisterReceiver();
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
             // whether we're in ambient mode), so we may need to start or stop the timer.
             updateTimer();
+        }
+
+        private void reloadImage()
+        {
+            background = BitmapFactory.decodeFile("background.png");
         }
 
         private void registerReceiver() {
@@ -299,6 +288,8 @@ public class TogetherAgain extends CanvasWatchFaceService implements DataApi.Dat
                     // TODO: Add code to handle the tap gesture.
                     Toast.makeText(getApplicationContext(), R.string.message, Toast.LENGTH_SHORT)
                             .show();
+                    //TODO Inefficient as ALWAYS reloads file, need to check if needs reloading
+                    reloadImage();
                     break;
             }
             invalidate();
@@ -307,9 +298,12 @@ public class TogetherAgain extends CanvasWatchFaceService implements DataApi.Dat
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             // Draw the background.
-            if (isInAmbientMode() || background == null) {
+            if(isInAmbientMode() || background == null)
+            {
                 canvas.drawColor(Color.BLACK);
-            } else {
+            }
+            else
+            {
                 canvas.drawBitmap(background,0 ,0,  mBackgroundPaint);
             }
 

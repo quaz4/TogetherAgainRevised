@@ -30,6 +30,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.wearable.watchface.CanvasWatchFaceService;
@@ -50,6 +51,9 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
@@ -80,21 +84,6 @@ public class TogetherAgain extends CanvasWatchFaceService
     Bitmap background = null;
 
     GoogleApiClient mGoogleApiClient = null;
-
-    /*
-    @Override
-    public void onDataChanged(DataEventBuffer dataEvents)
-    {
-        for(DataEvent event : dataEvents)
-        {
-            if(event.getType() == DataEvent.TYPE_CHANGED &&
-                    event.getDataItem().getUri().getPath().equals("/image")) {
-                DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
-                Asset profileAsset = dataMapItem.getDataMap().getAsset("background");
-                background = loadBitmapFromAsset(profileAsset);
-            }
-        }
-    }*/
 
     @Override
     public Engine onCreateEngine() {
@@ -205,9 +194,43 @@ public class TogetherAgain extends CanvasWatchFaceService
             updateTimer();
         }
 
+
+        //TODO Save bitmap then save image path to shared preferences
         private void reloadImage()
         {
-            background = BitmapFactory.decodeFile("background.png");
+            String filename = "background.png";
+            File env = Environment.getDataDirectory();
+            File dest = new File(env, filename);
+            boolean exists = dest.exists();
+
+
+
+            Toast.makeText(getApplicationContext(), "TA:" + Environment.getDataDirectory(), Toast.LENGTH_SHORT)
+                    .show();
+
+            if(exists)
+            {
+                Toast.makeText(getApplicationContext(), "Exists", Toast.LENGTH_SHORT)
+                        .show();
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "Doesn't Exist", Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            FileInputStream in = null;
+
+            try
+            {
+                in = openFileInput("background.jpg");
+            }
+            catch(FileNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+
+            background = BitmapFactory.decodeStream(in);
         }
 
         private void registerReceiver() {
@@ -275,8 +298,10 @@ public class TogetherAgain extends CanvasWatchFaceService
          * a tap.
          */
         @Override
-        public void onTapCommand(int tapType, int x, int y, long eventTime) {
-            switch (tapType) {
+        public void onTapCommand(int tapType, int x, int y, long eventTime)
+        {
+            switch (tapType)
+            {
                 case TAP_TYPE_TOUCH:
                     // The user has started touching the screen.
                     break;
@@ -292,6 +317,7 @@ public class TogetherAgain extends CanvasWatchFaceService
                     reloadImage();
                     break;
             }
+
             invalidate();
         }
 

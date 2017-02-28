@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
@@ -19,6 +20,8 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,26 +63,48 @@ public class DataLayerListenerService extends WearableListenerService
     public void onDataChanged(DataEventBuffer dataEvents) {
         super.onDataChanged(dataEvents);
 
-        showToast("Data changed");
+        showToast("onDataChanged");
 
         final List<DataEvent> events = FreezableUtils.freezeIterable(dataEvents);
-        for(DataEvent event : events) {
+        for(DataEvent event : events)
+        {
             final Uri uri = event.getDataItem().getUri();
             final String path = uri!=null ? uri.getPath() : null;
             //if("/IMAGE".equals(path)) {
                 final DataMap map = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
 
                 Asset newBackground = map.getAsset("background");
-
                 Bitmap bitmap = loadBitmapFromAsset(newBackground);
 
+                //String imagePath = Environment.getExternalStorageDirectory() + "/background.jpg";
+
+                BufferedOutputStream out;
+
+                try
+                {
+                    out = new BufferedOutputStream(openFileOutput("background.jpg", Context.MODE_WORLD_READABLE));
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                    out.close();
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+                /*
                 FileOutputStream out = null;
 
                 try
                 {
-                    out = new FileOutputStream("background.png");
+                    String filename = "background.png";
+                    File env = Environment.getDataDirectory();
+                    File dest = new File(env, filename);
+
+                    out = new FileOutputStream(dest);
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                     //PNG is a lossless format, the compression factor (100) is ignored
+                    out.flush();
+                    out.close();
                 }
                 catch(Exception e)
                 {
@@ -99,7 +124,18 @@ public class DataLayerListenerService extends WearableListenerService
                         e.printStackTrace();
                     }
                 }
+                */
             //}
+
+            String filename = "background.png";
+            File env = Environment.getDataDirectory();
+            File dest = new File(env, filename);
+            boolean exists = dest.exists();
+
+            if(exists)
+            {
+                showToast("Saving worked :)");
+            }
         }
     }
 

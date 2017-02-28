@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/TogetherAgain.iml" filepath="$PROJECT_DIR$/TogetherAgain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TogetherAgainRevised.iml" filepath="$PROJECT_DIR$/TogetherAgainRevised.iml" />
       <module fileurl="file://$PROJECT_DIR$/mobile/mobile.iml" filepath="$PROJECT_DIR$/mobile/mobile.iml" />
       <module fileurl="file://$PROJECT_DIR$/wear/wear.iml" filepath="$PROJECT_DIR$/wear/wear.iml" />
     </modules>

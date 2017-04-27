@@ -7,6 +7,10 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Vibrator;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -70,13 +74,16 @@ public class DataLayerListenerService extends WearableListenerService
         {
             final Uri uri = event.getDataItem().getUri();
             final String path = uri!=null ? uri.getPath() : null;
-            //if("/IMAGE".equals(path)) {
                 final DataMap map = DataMapItem.fromDataItem(event.getDataItem()).getDataMap();
 
                 Asset newBackground = map.getAsset("background");
-                Bitmap bitmap = loadBitmapFromAsset(newBackground);
+                Bitmap originalBitmap = loadBitmapFromAsset(newBackground);
 
-                //String imagePath = Environment.getExternalStorageDirectory() + "/background.jpg";
+                DisplayMetrics metrics = getApplicationContext().getResources().getDisplayMetrics();
+                int displayWidth = metrics.widthPixels;
+                int displayHeight = metrics.heightPixels;
+
+                Bitmap bitmap = resize(originalBitmap, displayWidth, displayHeight);
 
                 BufferedOutputStream out;
 
@@ -91,42 +98,6 @@ public class DataLayerListenerService extends WearableListenerService
                     e.printStackTrace();
                 }
 
-                /*
-                FileOutputStream out = null;
-
-                try
-                {
-                    String filename = "background.png";
-                    File env = Environment.getDataDirectory();
-                    File dest = new File(env, filename);
-
-                    out = new FileOutputStream(dest);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                    //PNG is a lossless format, the compression factor (100) is ignored
-                    out.flush();
-                    out.close();
-                }
-                catch(Exception e)
-                {
-                    e.printStackTrace();
-                }
-                finally
-                {
-                    try
-                    {
-                        if(out != null)
-                        {
-                            out.close();
-                        }
-                    }
-                    catch(IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-                */
-            //}
-
             String filename = "background.png";
             File env = Environment.getDataDirectory();
             File dest = new File(env, filename);
@@ -136,6 +107,28 @@ public class DataLayerListenerService extends WearableListenerService
             {
                 showToast("Saving worked :)");
             }
+        }
+    }
+
+    private static Bitmap resize(Bitmap image, int maxWidth, int maxHeight)
+    {
+        if (maxHeight > 0 && maxWidth > 0) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+            float ratioBitmap = (float) width / (float) height;
+            float ratioMax = (float) maxWidth / (float) maxHeight;
+
+            int finalWidth = maxWidth;
+            int finalHeight = maxHeight;
+            if (ratioMax > 1) {
+                finalWidth = (int) ((float)maxHeight * ratioBitmap);
+            } else {
+                finalHeight = (int) ((float)maxWidth / ratioBitmap);
+            }
+            image = Bitmap.createScaledBitmap(image, finalWidth, finalHeight, true);
+            return image;
+        } else {
+            return image;
         }
     }
 

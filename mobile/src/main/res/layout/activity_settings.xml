@@ -22,13 +22,6 @@
             android:layout_height="250dp"
             android:id="@+id/preview" />
 
-        <Button
-            android:text="Pick Image"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/pickImage"
-            android:onClick="launchGallery" />
-
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -41,21 +34,14 @@
                 android:layout_weight="1">
 
                 <Button
-                    android:text="View Will"
+                    android:text="Download Will"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/viewWill"
                     android:layout_weight="1" />
 
                 <Button
-                    android:text="Send Will"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/sendWill"
-                    android:layout_weight="1" />
-
-                <Button
-                    android:text="Receive Will"
+                    android:text="Upload Will"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/receiveWill"
@@ -69,21 +55,14 @@
                 android:layout_weight="1">
 
                 <Button
-                    android:text="View Hayley"
+                    android:text="Download Hayley"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/viewHayley"
                     android:layout_weight="1" />
 
                 <Button
-                    android:text="Send Hayley"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/button10"
-                    android:layout_weight="1" />
-
-                <Button
-                    android:text="Receive Hayley"
+                    android:text="Upload Hayley"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/receiveHayley"

@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +24,6 @@ import com.google.android.gms.wearable.Wearable;
 import java.io.IOException;
 import java.net.URL;
 import java.io.*;
-import java.util.Random;
 
 public class Settings extends AppCompatActivity {
 
@@ -62,9 +60,6 @@ public class Settings extends AppCompatActivity {
         PutDataMapRequest request = PutDataMapRequest.create("/image");
         DataMap map = request.getDataMap();
         Asset asset = createAssetFromBitmap(bitmap);
-        //Random randomGenerator = new Random();
-        //int randomInt = randomGenerator.nextInt(1000);
-        //map.putInt("Integer", randomInt);
         map.putAsset("background", asset);
         Wearable.DataApi.putDataItem(mGoogleApiClient, request.asPutDataRequest());
         showToast("Sending...");
@@ -91,9 +86,8 @@ public class Settings extends AppCompatActivity {
         {
             public void onClick(View v)
             {
-                Bitmap downloaded = download("Hayley");
-                ImageView imageView = (ImageView)findViewById(R.id.preview);
-                imageView.setImageBitmap(downloaded);
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.dust-bowl.net/together_again_test/uploadHayley.html"));
+                startActivity(browserIntent);
             }
         });
 
@@ -102,9 +96,8 @@ public class Settings extends AppCompatActivity {
         {
             public void onClick(View v)
             {
-                Bitmap downloaded = download("Will");
-                ImageView imageView = (ImageView)findViewById(R.id.preview);
-                imageView.setImageBitmap(downloaded);
+                makeConnection();
+                new DownloadImage().execute("Will");
             }
 
         });
@@ -114,9 +107,8 @@ public class Settings extends AppCompatActivity {
         {
             public void onClick(View v)
             {
-                Bitmap downloaded = download("Will");
-                ImageView imageView = (ImageView)findViewById(R.id.preview);
-                imageView.setImageBitmap(downloaded);
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.dust-bowl.net/together_again_test/uploadWill.html"));
+                startActivity(browserIntent);
             }
 
         });
@@ -140,6 +132,7 @@ public class Settings extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
+    /*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -152,10 +145,20 @@ public class Settings extends AppCompatActivity {
             try
             {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                // Log.d(TAG, String.valueOf(bitmap));
 
                 ImageView imageView = (ImageView) findViewById(R.id.preview);
                 imageView.setImageBitmap(bitmap);
+
+                //tempStorage = bitmap;
+
+                BufferedOutputStream out;
+
+                out = new BufferedOutputStream(openFileOutput("temp.jpg", Context.MODE_WORLD_READABLE));
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+                out.close();
+
+                new UploadImage().execute("Hayley");
+
             }
             catch(IOException e)
             {
@@ -163,6 +166,7 @@ public class Settings extends AppCompatActivity {
             }
         }
     }
+    */
 
     public Bitmap download(String name)
     {
